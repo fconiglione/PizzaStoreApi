@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PizzaStoreApi.DTOs;
+using PizzaStoreApi.Models;
 using PizzaStoreApi.Services;
 
 namespace PizzaStoreApi.Controllers;
