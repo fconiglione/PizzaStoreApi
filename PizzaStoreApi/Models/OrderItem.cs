@@ -11,5 +11,4 @@ public class OrderItem
     public int PizzaId { get; set; }
     public int Quantity { get; set; }
     public virtual Pizza? Pizza { get; set; }
-    public virtual Order? Order { get; set; }
 }

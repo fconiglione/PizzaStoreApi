@@ -20,6 +20,7 @@ public class PizzaService: IPizzaService
         var orders = await _context.Orders
             .AsNoTracking()
             .Include(orders => orders.OrderItems)
+            .ThenInclude(orderItems => orderItems.Pizza)
             .Select(order => new OrderResponseDto{
                 Id = order.Id,
                 CustomerName = order.CustomerName,
@@ -36,17 +37,17 @@ public class PizzaService: IPizzaService
     {
         if (createOrderDto.OrderItems == null || !createOrderDto.OrderItems.Any()) return null;
         if (string.IsNullOrWhiteSpace(createOrderDto.CustomerName)) return null;
+
+        var orderItems = await _context.OrderItems
+            .Include(orderItems => orderItems.Pizza)
+            .ToListAsync();
         
         var newOrder = new Order()
             { 
                 CustomerName = createOrderDto.CustomerName, 
                 OrderDate = DateTime.UtcNow, 
                 Status = Status.New, 
-                OrderItems = createOrderDto.OrderItems.Select(dto => new OrderItem
-                {
-                    PizzaId = dto.PizzaId,
-                    Quantity = dto.Quantity
-                }).ToList()
+                OrderItems = orderItems
             };
 
         _context.Orders.Add(newOrder);
@@ -57,11 +58,7 @@ public class PizzaService: IPizzaService
             Id = newOrder.Id,
             CustomerName = newOrder.CustomerName,
             OrderDate = newOrder.OrderDate,
-            OrderItems = newOrder.OrderItems.Select(oi => new OrderItem
-            {
-                PizzaId = oi.PizzaId,
-                Quantity = oi.Quantity
-            }).ToList(),
+            OrderItems = orderItems,
             Status = newOrder.Status
         };
     }
