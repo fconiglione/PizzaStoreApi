@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using PizzaStoreApi.DTOs;
 using PizzaStoreApi.Services;
 
 namespace PizzaStoreApi.Controllers;
@@ -22,5 +24,19 @@ public class OrdersController : ControllerBase
         if (result is null) BadRequest();
 
         return Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateOrder(CreateOrderDto createOrderDto)
+    {
+        if (createOrderDto.OrderItems.IsNullOrEmpty()) return BadRequest("OrderItems are required.");
+        
+        if (String.IsNullOrWhiteSpace(createOrderDto.CustomerName)) return BadRequest("CustomerName is required.");
+        
+        var result = _pizzaService.CreateOrder(createOrderDto);
+        
+        if (result is null) BadRequest();
+
+        return Created($"api/v1/orders/{result.Id}",result);
     }
 }

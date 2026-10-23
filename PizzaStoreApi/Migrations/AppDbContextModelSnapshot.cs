@@ -108,7 +108,7 @@ namespace PizzaStoreApi.Migrations
 
             modelBuilder.Entity("PizzaStoreApi.Models.OrderItem", b =>
                 {
-                    b.HasOne("PizzaStoreApi.Models.Order", null)
+                    b.HasOne("PizzaStoreApi.Models.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -119,6 +119,8 @@ namespace PizzaStoreApi.Migrations
                         .HasForeignKey("PizzaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Order");
 
                     b.Navigation("Pizza");
                 });

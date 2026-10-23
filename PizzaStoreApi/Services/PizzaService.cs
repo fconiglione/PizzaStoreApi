@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PizzaStoreApi.Controllers;
 using PizzaStoreApi.Data;
 using PizzaStoreApi.DTOs;
@@ -29,5 +30,39 @@ public class PizzaService: IPizzaService
             .ToListAsync();
         
         return orders;
+    }
+
+    public async Task<OrderResponseDto> CreateOrder(CreateOrderDto createOrderDto)
+    {
+        if (createOrderDto.OrderItems == null || !createOrderDto.OrderItems.Any()) return null;
+        if (string.IsNullOrWhiteSpace(createOrderDto.CustomerName)) return null;
+        
+        var newOrder = new Order()
+            { 
+                CustomerName = createOrderDto.CustomerName, 
+                OrderDate = DateTime.UtcNow, 
+                Status = Status.New, 
+                OrderItems = createOrderDto.OrderItems.Select(dto => new OrderItem
+                {
+                    PizzaId = dto.PizzaId,
+                    Quantity = dto.Quantity
+                }).ToList()
+            };
+
+        _context.Orders.Add(newOrder);
+        await _context.SaveChangesAsync();
+
+        return new OrderResponseDto()
+        {
+            Id = newOrder.Id,
+            CustomerName = newOrder.CustomerName,
+            OrderDate = newOrder.OrderDate,
+            OrderItems = newOrder.OrderItems.Select(oi => new OrderItem
+            {
+                PizzaId = oi.PizzaId,
+                Quantity = oi.Quantity
+            }).ToList(),
+            Status = newOrder.Status
+        };
     }
 }
